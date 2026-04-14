@@ -7,6 +7,7 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 
 from .config import get_settings
 from .decoders import AVAILABLE_DECODERS
+from .limiter import limiter
 from .models import Base64ImageRequest, HealthResponse, ScanResponse
 from .scanner import scan_image
 
@@ -42,6 +43,8 @@ def _execute_scan(image: np.ndarray, request: Request) -> ScanResponse:
 
 
 @router.post("/scan", response_model=ScanResponse, summary="Scan from file upload")
+@limiter.limit("10/minute")
+@limiter.limit("30/day")
 async def scan_file(request: Request, file: UploadFile = File(...)):
     """Upload an image (multipart/form-data) and decode its PDF417 barcode."""
     if not file.filename:
@@ -60,6 +63,8 @@ async def scan_file(request: Request, file: UploadFile = File(...)):
 
 
 @router.post("/scan/base64", response_model=ScanResponse, summary="Scan from base64 image")
+@limiter.limit("10/minute")
+@limiter.limit("30/day")
 async def scan_base64(request: Request, body: Base64ImageRequest):
     """Submit a base64-encoded image and decode its PDF417 barcode."""
     data = base64.b64decode(body.image)  # already validated + stripped by the model

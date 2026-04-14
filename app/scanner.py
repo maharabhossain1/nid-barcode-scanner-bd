@@ -82,6 +82,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
     if image.size == 0:
         return ScanResponse(
             success=False,
+            message="Could not decode — empty image",
             error="Empty image",
             suggestions=["Provide a valid image file"],
         )
@@ -90,6 +91,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
     if h < 200 or w < 200:
         return ScanResponse(
             success=False,
+            message=f"Could not decode — image too small ({w}×{h}px)",
             error=f"Image too small ({w}×{h}px)",
             suggestions=["Minimum image size is 200×200 px"],
         )
@@ -99,6 +101,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
         logger.warning("Image rejected — appears blank (blur_score=%.1f)", score)
         return ScanResponse(
             success=False,
+            message="Could not decode — image appears blank",
             error="Image appears blank or completely uniform — no visual content to scan",
             suggestions=[
                 "Upload a real photo of the NID card",
@@ -145,6 +148,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
         logger.info("Decoded via %s in %.3fs (type=%s)", method, elapsed, barcode_type)
         return ScanResponse(
             success=True,
+            message="Barcode decoded successfully",
             data=raw,
             parsed_data=parsed,
             barcode_type=barcode_type,
@@ -158,6 +162,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
     if elapsed_total >= timeout * 0.95:
         return ScanResponse(
             success=False,
+            message=f"Could not decode — processing timed out after {timeout}s",
             error=f"Processing timed out after {timeout}s",
             processing_time=round(elapsed_total, 3),
             suggestions=[
@@ -184,6 +189,7 @@ def scan_image(image: np.ndarray, executor: ThreadPoolExecutor, timeout: int) ->
 
     return ScanResponse(
         success=False,
+        message="Could not decode — barcode unreadable",
         error="Could not decode barcode",
         processing_time=round(elapsed_total, 3),
         suggestions=suggestions[:6],

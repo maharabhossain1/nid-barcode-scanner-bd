@@ -33,6 +33,7 @@ class NIDData(BaseModel):
 
 class ScanResponse(BaseModel):
     success: bool
+    message: Optional[str] = None
     data: Optional[str] = None
     parsed_data: Optional[NIDData] = None
     barcode_type: Optional[str] = None

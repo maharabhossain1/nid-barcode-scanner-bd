@@ -11,9 +11,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.config import get_settings
 from app.decoders import AVAILABLE_DECODERS
+from app.limiter import limiter
 from app.routes import router
 
 settings = get_settings()
@@ -28,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.limiter = limiter
     app.state.executor = ThreadPoolExecutor(max_workers=settings.thread_workers)
     logger.info(
         "Started %s v%s (workers=%d, timeout=%ds)",
@@ -54,6 +58,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS is intentionally open — this is an internal microservice
 app.add_middleware(
