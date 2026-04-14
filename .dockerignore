@@ -1,0 +1,56 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environments
+.venv
+venv/
+env/
+ENV/
+.env
+.envs/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+test_*.py
+
+# Tooling
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.github/
+.gitlab-ci.yml
+.gitignore
+.gitattributes
+
+# Docs (not needed in image)
+*.md
+!CLAUDE.md
+
+# Sample / debug images
+images/
+debug-*.png
+*.jpg
+*.jpeg
+*.png
+
+# Compose files (runtime config, not app code)
+docker-compose*.yml
+
+# Local dev only
+.claude/

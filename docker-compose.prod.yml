@@ -1,0 +1,41 @@
+# Production — immutable image, structured logs, resource limits, auto-restart
+# Usage: IMAGE_TAG=v3.0.0 docker compose -f docker-compose.prod.yml up -d
+services:
+  barcode-scanner:
+    image: nid-barcode-scanner:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nid-scanner-prod
+    ports:
+      - "8000:8000"
+    environment:
+      LOG_LEVEL: INFO
+      THREAD_WORKERS: "3"
+      TIMEOUT_SECONDS: "15"
+      MAX_FILE_SIZE_MB: "10"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "nid-scanner"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 768M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+
+networks:
+  default:
+    name: nid-scanner-prod

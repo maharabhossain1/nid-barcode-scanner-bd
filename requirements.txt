@@ -1,0 +1,17 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+pillow==10.1.0
+opencv-python-headless==4.8.1.78
+numpy==1.26.2
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Primary fast decoder (C++ backed via libzbar)
+pyzbar==0.1.9
+
+# Alternative decoder (uncomment to enable)
+# pylibdmtx==0.1.10
+
+# Fallback pure-Python decoder
+pdf417decoder==1.0.8
